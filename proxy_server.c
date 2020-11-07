@@ -1,14 +1,22 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <pthread.h>
+#include <semaphore.h>
+#include <arpa/inet.h>
 
-void socket_thread();
+sem_t seamophore;
+
+void proxy_thread();
 
 int main(int argc, char const *argv[])
 {
-    int socket_ds;
-    struct sockaddr_in server;
+    int socket_ds,client_ds;
+    struct sockaddr_in server,client;
     int N=100; //maximum number of connections queued
+    int size=sizeof(struct sockaddr_in);
+    pthread_t threads[N];
+    int cur_thread_index=0;
+    sem_init(&seamophore,0,N);
 
     //creating a socket
     socket_ds=socket(AF_INET,SOCK_STREAM,8080);
@@ -39,6 +47,13 @@ int main(int argc, char const *argv[])
     while (1)
     {
         //I should write how i will incorporate multi threading
+        client_ds=accept(socket_ds,(sockaddr*)&client,(socklen_t*)&size);
+        if(client_ds>0){
+            //create a thread 
+            pthread_create(&threads[cur_thread_index],NULL,&proxy_thread,NULL);
+
+        }
+
     }
     
 
